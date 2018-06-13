@@ -1,50 +1,86 @@
-## This function will allow you to assign color to each word in a plot annotation
-# Dependencies: purrr, ggplot2
+#' Annotate plots with each word being colored
+#'
+#' Creates a list of annotate functions by going along 'labels' and makes multiple strings
+#' with all but one word being invisible. Assigns a color to each string and overlays them all
+#' on a ggplot.
+#'
+#' @inheritParams annotate
+#' @param labels The string that you want to annotate the plot with.
+#' @param colors A character vector of colors
+#' @param default_color A string with a default color of your choosing
+#'
+#' @seealso [annotate()]
+#'
+#' @examples
+#' p <- qplot(1,1)
+#'
+#' p + annotate_color(x = 1, y = 1, size = 6,
+#'                    labels = 'Assign different colors for each word',
+#'                    colors = c('blue', 'green', 'purple', 'orange', 'black', 'yellow'))
+#'
+#' p + annotate_color(x = 1, y = 1,
+#'                    default_color = 'black',
+#'                    labels = 'Assign different color for one word',
+#'                    colors = c('', '', 'red'))
+#'
+#' p + annotate_color(x = 1, y = 1,
+#'                    default_color = 'Grey30',
+#'                    labels = 'Assign different color for first word',
+#'                    colors = c('red'))
+#'
+require(purrr)
+require(ggplot2)
 
-annotate_color <- function(geom = 'text', x, y, xmin = NULL, xmax = NULL,  
-                           ymin = NULL, ymax = NULL, xend = NULL, yend = NULL, ...,
-                           labels, colors, default_color = 'black'){
-  
-  
-  labels <- strsplit(labels, " ")[[1]] 
+annotate_color <- function(geom = 'text', x, y, xmin = NULL, xmax = NULL,
+                           ymin = NULL, ymax = NULL, xend = NULL, yend = NULL, ..., na.rm = FALSE,
+                           labels, colors, default_color = 'black')
+{
+  labels <- strsplit(labels, " ")[[1]]
   n <- length(labels)
-  
-  if (length(colors) < length(labels)){   # Assigns any empty values in 'colors' to the 'default_color' 
-    colors <- purrr::map_chr(seq_len(length(labels)), function(i){
-      if (is.na(colors[i]) | colors[i] == ''){
-        colors[i] <- default_color
-      } else {colors[i] <- colors [i]}}
-    )
+
+  # Assigns any empty values in 'colors' to the 'default_color'
+  if (length(colors) < length(labels)){
+    colors <- map_chr(seq_len(length(labels)),
+                      function(i){
+                        if (is.na(colors[i]) | colors[i] == ''){
+                          colors[i] <- default_color
+                        } else colors[i] <- colors [i]
+                      })
   }
-  
-  if (length(colors) > length(labels)){   # Shortens the length of 'colors' to match the length of 'labels'
+
+  # Shortens the length of 'colors' to match the length of 'labels'
+  if (length(colors) > length(labels)){
     colors = colors[1:length(labels)]
-    warning('The length of the colors arg is longer than the number of words in the labels arg. Extra colors will be               ignored.')
+    warning("'colors' exceeds words in 'labels'. Extra colors will be ignored.")
   }
-  
-  # Formats the labels argument into usable arguments for each annotation function
-  labels <- purrr::map_chr(seq_len(n), function(i) {  
-    start0 <- labels[seq_along(labels) < i]    # Assigns the first part of the string 
-    mid0 <- labels[i]                          # Assigns a single word 
-    end0 <- labels[seq_along(labels) > i]      # Assigns the last part of the string
-    start <- paste0('phantom("', paste(start0, collapse = " "), ' ")') # Wraps phantom() around the first part 
-    end <- paste0('phantom("', paste(end0, collapse = " "), ' ")') # Wraps phantom() around the last part
-    if(length(start0) > 0 && length(end0) > 0) {  # Conditional statements for the formatting depending...
-      paste(start, paste0('"', paste(mid0, collapse = " "), '"'), end, sep = ' * ') # ... on the position of 'mid0'
-    } else if (length(end0) > 0) {
-      paste(paste0('"', paste(mid0, collapse = " "), '"'), end, sep = ' * ')
-    } else if (length(start0) > 0) {
-      paste(start, paste0('"', paste(mid0, collapse = " "), '"'), sep = ' * ')
-    } else {
-      stop("couldn't finish ...")
-    } # Anonymous function above created with the assistance of
-  })  # https://stackoverflow.com/users/3521006/docendo-discimus
-  
-  # Plugs all arguments into the annotate() function and stores them into a list
+
+  # Creates multiple labels by wrapping each word in phantom()
+  labels <- map_chr(seq_len(n),
+                    function(i) {
+                      start0 <- labels[seq_along(labels) < i]
+                      mid0 <- labels[i]
+                      end0 <- labels[seq_along(labels) > i]
+                      start <- paste0('phantom("', paste(start0, collapse = " "), ' ")')
+                      end <- paste0('phantom("', paste(end0, collapse = " "), ' ")')
+                      if(length(start0) > 0 && length(end0) > 0) {
+                        paste(start, paste0('"', paste(mid0, collapse = " "), '"'), end, sep = ' * ')
+                      } else if (length(end0) > 0) {
+                        paste(paste0('"', paste(mid0, collapse = " "), '"'), end, sep = ' * ')
+                      } else if (length(start0) > 0) {
+                        paste(start, paste0('"', paste(mid0, collapse = " "), '"'), sep = ' * ')
+                      } else {
+                        stop("couldn't finish ...")
+                      } # Anonymous function above created with the assistance of
+                    })  # https://stackoverflow.com/users/3521006/docendo-discimus
+
+  # Creates a list of annotate() functions by plugging arguments into them
   annofuncs <- list()
-  annofuncs <- purrr::map2(labels, colors, function(annolabel, annocolor){
-    annofuncs[seq_along(annolabel)] <- list(annotate(geom, x, y, xmin, xmax, ymin, ymax, xend, yend, ...,
-                                                     parse = T, label = annolabel, color = annocolor))
-  })
-  return(annofuncs) # Returns the list which can be added to a ggplot like any other layer
+  annofuncs <- map2(labels, colors,
+                    function(annolabel, annocolor){
+                      annofuncs[seq_along(annolabel)] <-
+                                  list(annotate(geom, x, y, xmin, xmax,
+                                                ymin, ymax, xend, yend, ..., na.rm
+                                                parse = T, label = annolabel, color = annocolor))
+                     })
+  return(annofuncs)
 }
