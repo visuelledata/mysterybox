@@ -1,6 +1,6 @@
 Package: mysterybox
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Output evaluation, function modification, and ggplot helpers
 Version: 0.1.0
 Author: Who wrote it
 Maintainer: The package maintainer <yourself@somewhere.net>

@@ -28,13 +28,10 @@
 #'                    labels = 'Assign different color for first word',
 #'                    colors = c('red'))
 #'
-require(purrr)
-require(ggplot2)
 
 annotate_color <- function(geom = 'text', x, y, xmin = NULL, xmax = NULL,
                            ymin = NULL, ymax = NULL, xend = NULL, yend = NULL, ..., na.rm = FALSE,
-                           labels, colors, default_color = 'black')
-{
+                           labels, colors, default_color = 'black') {
   labels <- strsplit(labels, " ")[[1]]
   n <- length(labels)
 
@@ -79,7 +76,7 @@ annotate_color <- function(geom = 'text', x, y, xmin = NULL, xmax = NULL,
                     function(annolabel, annocolor){
                       annofuncs[seq_along(annolabel)] <-
                                   list(annotate(geom, x, y, xmin, xmax,
-                                                ymin, ymax, xend, yend, ..., na.rm
+                                                ymin, ymax, xend, yend, ..., na.rm,
                                                 parse = T, label = annolabel, color = annocolor))
                      })
   return(annofuncs)

@@ -27,7 +27,6 @@
 #' ggtitle_color(title_segments =  c('I ', 'love ', 'you'),
 #'               colors = c('grey30', 'red', 'grey30'))
 #'
-require(ggplot2)
 
 ggtitle_color <- function(plot = last_plot(), title_segments, colors,
                           nudge_x = 0, nudge_y = 0, size = 14,

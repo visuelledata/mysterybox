@@ -30,8 +30,6 @@
 #' mean(1:3) %>%                            # FALSE
 #'   is.output.same(median)
 #'
-require(magrittr)
-require(purrr)
 
 is.output.same <- function(.call, ..., quiet = FALSE) {
 

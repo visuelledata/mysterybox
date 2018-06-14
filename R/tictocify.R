@@ -36,8 +36,6 @@ tictocify <- function(..f, tic_args = NULL, toc_args = NULL) {
   if (!is.null(tic_args)) assertthat::assert_that(is.list(tic_args))
   if(!is.null(toc_args)) assertthat::assert_that(is.list(toc_args))
 
-
-
   # Creates a wrapper function for ..f which will call ..f and give its execution time
   int_f <- function() {
     ifelse(is.null(tic_args),
@@ -54,6 +52,5 @@ tictocify <- function(..f, tic_args = NULL, toc_args = NULL) {
 
   # Makes the arguments of the returned function identical to the original
   formals(int_f) <- formals(..f)
-
   return(int_f)
 }
