@@ -27,13 +27,14 @@
 #' ggtitle_color(title_segments =  c('I ', 'love ', 'you'),
 #'               colors = c('grey30', 'red', 'grey30'))
 #'
-
 require(ggplot2)
 
 ggtitle_color <- function(plot = last_plot(), title_segments, colors,
                           nudge_x = 0, nudge_y = 0, size = 14,
                           hjust = 0, vjust = 0, ...,
                           plot.margin = unit(c(.9, 1, 1, 1.2), "cm")) {
+
+  assertthat::assert_that(is.character(title_segments), is.character(colors))
 
   plot.new()
   # Preformat the graph for the title
