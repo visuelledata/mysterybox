@@ -9,12 +9,19 @@
 #' @param ...   One or more function names
 #' @param quiet Optional warning suppression
 #'
+#' @details Use only in pipe chains with a length of one, or it will evaluate up to the
+#'  top of the chain. Also it's not recommended to use pipes with this function, as it
+#'  undoes what the pipe is intended to do. If you don't pipe in .call, then the function
+#'  operates off the fact that calls given inside of function calls function are promises,
+#'  allowing the code to be wrapped in substitute() within the function.
+#'
 #' @return TRUE or FALSE
 #'
 #' @seealso [find_call_piped()]
 #'
 #' @examples
 #'
+#' library(dplyr)
 #' is.output.same(map(1:3, cumsum), lapply) # TRUE
 #' is.output.same(cumsum(1:3), cumprod)     # FALSE
 #' is.output.same(sum(1:3), prod)           # FALSE for outputs of different class

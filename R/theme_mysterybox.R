@@ -1,3 +1,7 @@
+#' A theme for use with ggtitle_color()
+#'
+#' A theme for this package.
+#'
 theme_mysterybox <- function() {
   theme(axis.title = element_text(color = 'grey40', size = 14),
         axis.title.y = element_text(hjust = .94),
